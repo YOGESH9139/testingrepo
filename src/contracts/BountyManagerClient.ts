@@ -951,4 +951,3 @@ export type BountyManagerComposer<TReturns extends [...any[]] = []> = {
 export type BountyManagerComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
   returns: TReturns
 }>
-
