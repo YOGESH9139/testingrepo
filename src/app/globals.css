@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
 
-    --card: 0 0% 0%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
 
-    --popover: 0 0% 0%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
 
     /* Algorand-themed colors - purple palette */
     --primary: 265 80% 60%;
@@ -46,13 +46,13 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
+    --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 0%;
+    --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 0%;
+    --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
     /* Algorand-themed colors - purple palette for dark mode */
@@ -121,22 +121,6 @@
   backdrop-filter: blur(12px);
   border: 1px solid rgba(138, 75, 255, 0.1);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-}
-
-/* Enhanced glass morphism */
-.glass-card {
-  background: rgba(15, 3, 35, 0.25);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.glass-card:hover {
-  background: rgba(25, 5, 55, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(97, 4, 215, 0.15);
 }
 
 /* Algorand-themed card with subtle hover effect */
@@ -214,20 +198,6 @@
   }
 }
 
-/* Glow effect for active elements */
-.shadow-glow {
-  box-shadow: 0 0 15px rgba(138, 75, 255, 0.3);
-}
-
-/* Smooth hover transition for links */
-.hover-lift {
-  transition: all 0.2s ease;
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -290,3 +260,4 @@
 .featured-tag {
   @apply flex items-center gap-1 text-yellow-500 font-medium;
 }
+

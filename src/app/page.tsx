@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, Code, Gem, GitBranch, GraduationCap } from "lucide-react"
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import { createClient } from "@supabase/supabase-js"
 import { Skeleton } from "@/components/ui/skeleton"
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+)
 
 // Define Project interface
 interface Project {
@@ -43,31 +50,6 @@ const stats = [
   { label: "Community Members", value: "50,000+" },
 ]
 
-// Mock projects data
-const mockProjects = [
-  {
-    id: 1,
-    name: "AlgoSwap",
-    description: "A decentralized exchange for Algorand assets",
-    stage: "Building MVP",
-    created_at: "2024-04-15T10:00:00Z",
-  },
-  {
-    id: 2,
-    name: "AlgoNFT Gallery",
-    description: "A platform to showcase and trade Algorand NFTs",
-    stage: "Beta Testing",
-    created_at: "2024-04-20T15:45:00Z",
-  },
-  {
-    id: 3,
-    name: "AlgoVote",
-    description: "A decentralized voting platform built on Algorand",
-    stage: "Idea Stage",
-    created_at: "2024-05-01T09:20:00Z",
-  },
-]
-
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
@@ -91,15 +73,31 @@ export default function Home() {
   const heroY = useTransform(scrollY, [0, 500], [0, -150])
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.3])
 
-  // Fetch projects from mock data
+  // Fetch projects from database
   useEffect(() => {
-    // Simulate loading delay
-    const timer = setTimeout(() => {
-      setProjects(mockProjects)
-      setLoading(false)
-    }, 800)
+    async function fetchProjects() {
+      setLoading(true)
+      try {
+        const { data, error } = await supabase
+          .from("projects")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(3)
 
-    return () => clearTimeout(timer)
+        if (error) throw error
+
+        // Add a small delay to show the skeleton effect
+        setTimeout(() => {
+          setProjects(data || [])
+          setLoading(false)
+        }, 800)
+      } catch (error) {
+        console.error("Error fetching projects:", error)
+        setLoading(false)
+      }
+    }
+
+    fetchProjects()
   }, [])
 
   // Enable smooth scrolling
@@ -409,3 +407,4 @@ export default function Home() {
     </main>
   )
 }
+

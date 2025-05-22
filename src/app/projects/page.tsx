@@ -68,85 +68,49 @@ export default function ProjectsPage() {
   async function fetchProjects() {
     setLoading(true)
     try {
-      // Use mock data instead of actual Supabase fetch
-      setTimeout(() => {
-        // This simulates the data that would come from Supabase
-        const mockProjects = [
-          {
-            id: "1",
-            name: "AlgoSwap",
-            description: "A decentralized exchange for Algorand assets",
-            stage: "Building MVP",
-            category: "DeFi",
-            teamsize: 3,
-            roles: ["Frontend Developer", "Smart Contract Engineer", "UI/UX Designer"],
-            createdby: "AlgoTeam",
-            creatoraddress: "ALGO123456789",
-            created_at: "2024-04-15T10:00:00Z",
-          },
-          {
-            id: "2",
-            name: "AlgoNFT Gallery",
-            description: "A platform to showcase and trade Algorand NFTs",
-            stage: "Beta Testing",
-            category: "NFT",
-            teamsize: 4,
-            roles: ["Backend Developer", "Frontend Developer", "Marketing Specialist"],
-            createdby: "NFTCreators",
-            creatoraddress: "ALGO987654321",
-            created_at: "2024-04-20T15:45:00Z",
-          },
-          {
-            id: "3",
-            name: "AlgoVote",
-            description: "A decentralized voting platform built on Algorand",
-            stage: "Idea Stage",
-            category: "DAO",
-            teamsize: 1,
-            roles: ["Full Stack Developer", "Blockchain Engineer", "UI Designer"],
-            createdby: "VoteDAO",
-            creatoraddress: "ALGO555555555",
-            created_at: "2024-05-01T09:20:00Z",
-          },
-        ]
-
-        // Filter for my projects if selected
-        let filteredProjects = mockProjects
-        if (showMyProjects && activeAccount) {
-          filteredProjects = mockProjects.filter((project) => project.creatoraddress === activeAccount.address)
-        }
-
-        // Filter by search term if provided
-        if (searchTerm) {
-          filteredProjects = filteredProjects.filter(
-            (project) =>
-              project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              project.description.toLowerCase().includes(searchTerm.toLowerCase()),
-          )
-        }
-
-        // Filter by category if selected
-        if (selectedCategory && selectedCategory !== "all") {
-          filteredProjects = filteredProjects.filter((project) => project.category === selectedCategory)
-        }
-
-        // Filter by team size if selected
-        if (selectedTeamSize) {
-          if (selectedTeamSize === "1") {
-            filteredProjects = filteredProjects.filter((project) => project.teamsize === 1)
-          } else if (selectedTeamSize === "2-5") {
-            filteredProjects = filteredProjects.filter((project) => project.teamsize >= 2 && project.teamsize <= 5)
-          } else if (selectedTeamSize === "5+") {
-            filteredProjects = filteredProjects.filter((project) => project.teamsize > 5)
-          }
-        }
-
-        setProjects(filteredProjects)
+      if (!supabase) {
+        toast.error("Database connection not available", {
+          description: "Please check your environment variables",
+        })
         setLoading(false)
-      }, 1000) // Simulate network delay
+        return
+      }
+      let query = supabase.from("projects").select("*")
+
+      // Apply search filter if provided
+      if (searchTerm) {
+        query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+      }
+
+      // Apply category filter if selected
+      if (selectedCategory) {
+        query = query.eq("category", selectedCategory)
+      }
+
+      // Apply team size filter if selected
+      if (selectedTeamSize) {
+        if (selectedTeamSize === "1") {
+          query = query.eq("teamsize", 1)
+        } else if (selectedTeamSize === "2-5") {
+          query = query.gte("teamsize", 2).lte("teamsize", 5)
+        } else if (selectedTeamSize === "5+") {
+          query = query.gt("teamsize", 5)
+        }
+      }
+
+      // Filter for my projects if selected
+      if (showMyProjects && activeAccount) {
+        query = query.eq("creatoraddress", activeAccount.address)
+      }
+
+      const { data, error } = await query.order("created_at", { ascending: false })
+
+      if (error) throw error
+      setProjects(data || [])
     } catch (error) {
       console.error("Error fetching projects:", error)
       toast.error("Failed to fetch projects")
+    } finally {
       setLoading(false)
     }
   }

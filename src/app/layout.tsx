@@ -1,35 +1,30 @@
-import type React from "react"
+import { Header } from "@/components/header"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { WalletProviderWrapper } from "@/components/wallet-provider"
-import { WalletSimulationProvider } from "@/context/wallet-simulation-context"
+import type React from "react" // Added import for React
+import { Providers } from "./providers"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "AlgoDevs",
-  description: "A platform for Algorand developers",
+  title: "AlgoDevs - Algorand Developer Community",
+  description: "Join the future of blockchain development with Algorand",
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-black text-white`}>
-        <WalletSimulationProvider>
-          <WalletProviderWrapper>
-            <Header />
-            <main className="min-h-screen pt-16">{children}</main>
-            <Footer />
-          </WalletProviderWrapper>
-        </WalletSimulationProvider>
-      </body>
+      <Providers>
+      <body className={inter.className}>
+        <Header />
+        {children}
+        </body>
+        </Providers>
     </html>
   )
 }

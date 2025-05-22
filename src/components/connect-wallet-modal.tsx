@@ -2,8 +2,6 @@
 
 import { type Wallet, useWallet } from "@txnlab/use-wallet-react"
 import { toast } from "react-toastify"
-import { X } from "lucide-react"
-import { useEffect } from "react"
 
 const ConnectWalletModal = ({
   wallets,
@@ -15,18 +13,6 @@ const ConnectWalletModal = ({
   onClose: () => void
 }) => {
   const { activeAccount } = useWallet()
-
-  // Prevent body scrolling when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = ""
-    }
-    return () => {
-      document.body.style.overflow = ""
-    }
-  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -62,82 +48,79 @@ const ConnectWalletModal = ({
   }
 
   return (
-    <>
-      {/* Portal container to render at the root level */}
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50" onClick={onClose}>
       <div
-        className="fixed inset-0 z-[9999] flex items-center justify-center"
-        style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 flex flex-col items-center justify-center translate-y-60"
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Backdrop */}
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-          onClick={onClose}
-          style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}
-        />
+        <div className="flex justify-between items-center w-full mb-4">
+          <h3 className="text-lg font-medium">Connect to a wallet</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            <span className="sr-only">Close</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-        {/* Modal */}
-        <div
-          className="relative z-[10000] w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-6 shadow-lg"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-white">Connect to a wallet</h3>
-            <button className="text-slate-400 hover:text-white transition-colors" onClick={onClose} aria-label="Close">
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          <div className="space-y-3 mb-6">
-            {wallets.map((wallet) => (
-              <div
-                onClick={() => handleWalletClick(wallet)}
-                key={wallet.id}
-                className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-slate-800 transition-colors ${
-                  wallet.activeAccount ? "border-purple-500 bg-slate-800/50" : "border-slate-700"
+        <div className="space-y-2 w-full">
+          {wallets.map((wallet) => (
+            <div
+              onClick={() => handleWalletClick(wallet)}
+              key={wallet.id}
+              className={`flex justify-between items-center p-3 rounded-lg cursor-pointer transition-colors w-full
+                ${
+                  wallet.isConnected
+                    ? "bg-green-50 border border-green-200 hover:bg-green-100"
+                    : "bg-gray-50 border border-gray-200 hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600"
                 }`}
-              >
-                <div className="flex flex-col">
-                  <span className="font-medium text-white">{wallet.metadata.name}</span>
-                  {wallet.activeAccount && (
-                    <span className="text-sm text-slate-400">
-                      {`${wallet.activeAccount.address.slice(0, 6)}...${wallet.activeAccount.address.slice(-6)}`}
-                    </span>
-                  )}
-                  {wallet.isActive && <span className="text-xs text-purple-400 mt-1">Active</span>}
-                </div>
-                <img
-                  src={wallet.metadata.icon || "/placeholder.svg?height=32&width=32"}
-                  alt={`${wallet.metadata.name} Icon`}
-                  className="h-8 w-8"
-                />
-              </div>
-            ))}
-          </div>
+            >
+              <span className="font-medium">
+                {wallet.metadata.name} {wallet.activeAccount && `[${wallet.activeAccount.address.slice(0, 3)}...${wallet.activeAccount.address.slice(-3)}]`}
+                {wallet.isActive && ` (active)`}
+              </span>
+              <img
+                src={wallet.metadata.icon || "/placeholder.svg?height=24&width=24"}
+                alt={`${wallet.metadata.name} Icon`}
+                className="h-6 w-6"
+              />
+            </div>
+          ))}
 
           {activeAccount && (
             <div
               onClick={disconnectWallets}
-              className="flex items-center justify-center p-3 rounded-lg border border-red-500/50 cursor-pointer hover:bg-red-900/20 transition-colors text-red-400 hover:text-red-300 mb-6"
+              className="flex justify-between items-center p-3 rounded-lg cursor-pointer transition-colors bg-red-50 border border-red-200 hover:bg-red-100 mt-4 w-full"
             >
-              <span>Disconnect All Wallets</span>
+              <span className="font-medium text-red-600">
+                Disconnect {activeAccount && `[${activeAccount.address.slice(0, 3)}...${activeAccount.address.slice(-3)}]`}
+              </span>
             </div>
           )}
+        </div>
 
-          <div className="pt-4 border-t border-slate-700 text-sm text-slate-400 text-center">
-            <span>New to Algorand? </span>
-            <a
-              href="https://algorand.com/wallets"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-purple-400 hover:text-purple-300 hover:underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Learn more about wallets
-            </a>
-          </div>
+        <div className="mt-6 pt-4 border-t text-sm text-center text-gray-500 dark:text-gray-400 w-full">
+          <span>New to Algorand? </span>
+          <a
+            href="https://algorand.com/wallets"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-green-600 hover:text-green-700 dark:text-green-500 dark:hover:text-green-400"
+          >
+            Learn more about wallets
+          </a>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

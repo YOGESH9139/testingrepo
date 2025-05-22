@@ -109,8 +109,27 @@ export default function CreateProjectPage() {
 
     setSubmitting(true)
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      if (!supabase) {
+        toast.error("Database connection not available")
+        return
+      }
+
+      // Insert data according to the database schema
+      const { data, error } = await supabase
+        .from("projects")
+        .insert({
+          name: formData.name,
+          description: formData.description,
+          stage: formData.stage,
+          category: formData.category,
+          teamsize: formData.teamsize, // lowercase as per schema
+          roles: filteredRoles,
+          createdby: activeAccount.name || "Anonymous", // lowercase as per schema
+          creatoraddress: activeAccount.address, // lowercase as per schema
+        })
+        .select()
+
+      if (error) throw error
 
       toast.success("Project created successfully")
 
