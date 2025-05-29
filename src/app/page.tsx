@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, Code, Gem, GitBranch, GraduationCap } from "lucide-react"
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import { createClient } from "@supabase/supabase-js"
 import { Skeleton } from "@/components/ui/skeleton"
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://qkmuehomuwzzxfkansbw.supabase.co",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrbXVlaG9tdXd6enhma2Fuc2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MzY0MDUsImV4cCI6MjA2MzUxMjQwNX0.1slVu00Me8OQs7YxMpjrNKGbtAlvQiTnd-vZPq34XPI",
+)
 
 // Define Project interface
 interface Project {
@@ -36,14 +43,6 @@ const features = [
   },
 ]
 
-const stats = [
-  { label: "Active Developers", value: "5,000+" },
-  { label: "Total Bounties", value: "$500K+" },
-  { label: "Projects Launched", value: "1,000+" },
-  { label: "Community Members", value: "50,000+" },
-]
-
-// Sample project data for development/preview
 const sampleProjects = [
   {
     id: 1,
@@ -66,6 +65,13 @@ const sampleProjects = [
     stage: "Active",
     created_at: new Date().toISOString(),
   },
+]
+
+const stats = [
+  { label: "Active Developers", value: "5,000+" },
+  { label: "Total Bounties", value: "$500K+" },
+  { label: "Projects Launched", value: "1,000+" },
+  { label: "Community Members", value: "50,000+" },
 ]
 
 export default function Home() {
@@ -91,19 +97,10 @@ export default function Home() {
   const heroY = useTransform(scrollY, [0, 500], [0, -150])
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.3])
 
-  // Fetch projects from database or use sample data
+  // Fetch projects from database
   useEffect(() => {
     async function fetchProjects() {
       setLoading(true)
-
-      // Use sample data directly in development/preview
-      setTimeout(() => {
-        setProjects(sampleProjects)
-        setLoading(false)
-      }, 800)
-
-      // Note: In production with proper Supabase setup, you would uncomment this code:
-      /*
       try {
         const { data, error } = await supabase
           .from("projects")
@@ -111,19 +108,17 @@ export default function Home() {
           .order("created_at", { ascending: false })
           .limit(3)
 
-        if (error) {
-          console.error("Error fetching projects:", error)
-          setProjects(sampleProjects)
-        } else {
-          setProjects(data?.length ? data : sampleProjects)
-        }
+        if (error) throw error
+
+        // Add a small delay to show the skeleton effect
+        setTimeout(() => {
+          setProjects(data || [])
+          setLoading(false)
+        }, 800)
       } catch (error) {
         console.error("Error fetching projects:", error)
-        setProjects(sampleProjects)
-      } finally {
         setLoading(false)
       }
-      */
     }
 
     fetchProjects()
@@ -416,8 +411,8 @@ export default function Home() {
                                 Active
                               </span>
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-2">Project {i + 1}</h3>
-                            <p className="text-gray-400 mb-4">A decentralized application built on Algorand</p>
+                            <h3 className="text-xl font-bold text-white mb-2">{sampleProjects[i].name}</h3>
+                            <p className="text-gray-400 mb-4">{sampleProjects[i].description}</p>
                             <motion.div
                               whileHover={{ x: 5 }}
                               transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -436,3 +431,4 @@ export default function Home() {
     </main>
   )
 }
+
