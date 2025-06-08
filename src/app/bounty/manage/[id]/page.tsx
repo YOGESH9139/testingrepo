@@ -749,7 +749,7 @@ export default function ManageBountyPage({ params }: { params: { id: string } })
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-indigo-400/20 text-white"
+                  className="border-indigo-400/20 text-black"
                   onClick={() => setSelectedSubmission(submission)}
                   disabled={processingAction === submission.id}
                 >
@@ -995,7 +995,7 @@ export default function ManageBountyPage({ params }: { params: { id: string } })
             <DialogFooter className="flex flex-col sm:flex-row gap-2">
               <Button
                 variant="outline"
-                className="border-indigo-400/20 text-white"
+                className="border-indigo-400/20 text-black"
                 onClick={() => setSelectedSubmission(null)}
               >
                 Cancel
